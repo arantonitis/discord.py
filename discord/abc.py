@@ -799,7 +799,7 @@ class Messageable(metaclass=abc.ABCMeta):
 
     async def send(self, content=None, *, tts=False, embed=None, file=None,
                                           files=None, delete_after=None, nonce=None,
-                                          allowed_mentions=None):
+                                          allowed_mentions=None, message_reference=None):
         """|coro|
 
         Sends a message to the destination with the content given.
@@ -901,8 +901,11 @@ class Messageable(metaclass=abc.ABCMeta):
                 for f in files:
                     f.close()
         else:
-            data = await state.http.send_message(channel.id, content, tts=tts, embed=embed,
-                                                                      nonce=nonce, allowed_mentions=allowed_mentions)
+            data = await state.http.send_message(
+                channel.id, content, tts=tts, embed=embed,
+                nonce=nonce, allowed_mentions=allowed_mentions,
+                message_reference=message_reference
+                )
 
         ret = state.create_message(channel=channel, data=data)
         if delete_after is not None:

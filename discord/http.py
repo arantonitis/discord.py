@@ -51,7 +51,7 @@ async def json_or_text(response):
     return text
 
 class Route:
-    BASE = 'https://discord.com/api/v7'
+    BASE = 'https://discord.com/api/v8'
 
     def __init__(self, method, path, **parameters):
         self.path = path
@@ -340,7 +340,7 @@ class HTTPClient:
 
         return self.request(Route('POST', '/users/@me/channels'), json=payload)
 
-    def send_message(self, channel_id, content, *, tts=False, embed=None, nonce=None, allowed_mentions=None):
+    def send_message(self, channel_id, content, *, tts=False, embed=None, nonce=None, allowed_mentions=None, message_reference=None):
         r = Route('POST', '/channels/{channel_id}/messages', channel_id=channel_id)
         payload = {}
 
@@ -358,6 +358,11 @@ class HTTPClient:
 
         if allowed_mentions:
             payload['allowed_mentions'] = allowed_mentions
+
+        if message_reference:
+            ref = message_reference
+            payload['message_reference'] = {
+                'message_id': ref.id, 'channel_id': ref.channel.id, 'guild_id': ref.guild.id}
 
         return self.request(r, json=payload)
 
