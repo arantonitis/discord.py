@@ -56,6 +56,7 @@ from .flags import Intents, MemberCacheFlags
 from .embeds import Embed
 from .object import Object
 from .invite import Invite
+from .interaction import Interaction
 
 class ChunkRequest:
     def __init__(self, guild_id, loop, resolver, *, cache=True):
@@ -980,6 +981,22 @@ class ConnectionState:
             self.dispatch('webhooks_update', channel)
         else:
             log.debug('WEBHOOKS_UPDATE referencing an unknown channel ID: %s. Discarding.', data['channel_id'])
+
+    def parse_application_command_create(self, data):
+        print(data)
+        app_command = data
+        self.dispatch('application_command_create', app_command)
+
+    def parse_application_command_update(self, data):
+        print(data)
+        app_command = data
+        self.dispatch('application_command_update', app_command)
+
+    def parse_interaction_create(self, data):
+        channel, guild = self._get_guild_channel(data)
+        interact = Interaction(state=self, channel=channel, guild=guild, data=data)
+        self.dispatch('interaction', interact)
+
 
     def parse_voice_state_update(self, data):
         guild = self._get_guild(utils._get_as_snowflake(data, 'guild_id'))

@@ -883,6 +883,42 @@ class HTTPClient:
     def move_member(self, user_id, guild_id, channel_id, *, reason=None):
         return self.edit_member(guild_id=guild_id, user_id=user_id, channel_id=channel_id, reason=reason)
 
+    # Interactions
+
+    def create_guild_application_command(self, app_id, guild_id, name, description, options=None):
+        payload = {
+            'name': name,
+            'description': description,
+        }
+        if options:
+            payload['options'] = options
+        s = '/applications/' + str(app_id) + '/guilds/{guild_id}/commands'
+        r = Route('POST', s, guild_id=guild_id)
+        return self.request(r, json=payload)
+
+    def send_interaction_response(self, inter_id, inter_token, type, content=None, *, tts=False, embed=None, allowed_mentions=None):
+        r = Route('POST', f'/interactions/{inter_id}/{inter_token}/callback')
+        payload = {'type': int(type)}
+        if type in (1, 2, 5):
+            return self.request(r, json=payload)
+        msg = {}
+
+        if content:
+            msg['content'] = content
+
+        if tts:
+            msg['tts'] = True
+
+        if embed:
+            msg['embeds'] = [embed]
+
+        if allowed_mentions:
+            msg['allowed_mentions'] = allowed_mentions
+
+        payload['data'] = msg
+        return self.request(r, json=payload)
+
+
     # Relationship related
 
     def remove_relationship(self, user_id):
